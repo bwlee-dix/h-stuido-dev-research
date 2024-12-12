@@ -1,5 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import GNB from '@/component/GNB.vue'
+import VideoSample from '@/component/video/VideoSample.vue'
+</script>
 
 <template>
-  <div class="text-2xl bg-blue-200">하이루룰루루</div>
+  <VideoSample />
 </template>
