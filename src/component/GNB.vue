@@ -14,16 +14,25 @@ const openVideoModal = () => {
 const openCommonModal = () => {
   modalStore.showModal('common')
 }
+const openScreenModal = () => {
+  modalStore.showModal('screen')
+}
 </script>
 
 <template>
-  <div class="w-full bg-black text-white absolute bottom-0 h-20 flex flex-col justify-center">
-    <div class="max-w-[1000px] mx-auto w-full flex flex-row gap-8 justify-center">
+  <div
+    class="absolute bottom-0 flex h-20 w-full flex-col justify-center bg-black text-white"
+  >
+    <div
+      class="mx-auto flex w-full max-w-[1000px] flex-row justify-center gap-8"
+    >
       <div @click="openCommonModal" class="button-tel cursor-pointer">
         <IconTelephone />
       </div>
 
-      <IconMap />
+      <div @click="openScreenModal" class="button-wavve cursor-pointer">
+        <IconMap />
+      </div>
       <div @click="openVideoModal" class="button-wavve cursor-pointer">
         <IconWavve />
       </div>

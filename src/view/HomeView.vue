@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import GNB from '@/component/GNB.vue'
-import VideoSample from '@/component/video/VideoSample.vue'
+import ChargingBG from '@/component/image/ChargingBG.vue'
+// import VideoSample from '@/component/video/VideoSample.vue'
 </script>
 
 <template>
-  <VideoSample />
+  <!-- <VideoSample /> -->
+  <ChargingBG />
 </template>

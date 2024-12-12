@@ -5,6 +5,7 @@ export const useModalStore = defineStore('modal', {
     modals: {
       video: false,
       common: false,
+      screen: true,
     } as Record<string, boolean>,
   }),
   actions: {
