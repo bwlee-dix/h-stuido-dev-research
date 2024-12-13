@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import ChargingBG from '@/component/image/ChargingBG.vue'
-// import VideoSample from '@/component/video/VideoSample.vue'
+import TouchDistanceTest from '@/component/TouchDistanceTest.vue'
 </script>
 
 <template>
-  <!-- <VideoSample /> -->
-  <ChargingBG />
+  <!-- <ChargingBG /> -->
+  <TouchDistanceTest />
 </template>
