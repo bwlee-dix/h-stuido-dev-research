@@ -24,13 +24,26 @@ export default class TouchDistanceTracker {
   private points: Point[] = []
   private lines: Line[] = []
   private observers: TouchDistanceObserver[] = []
+  private storageKey: string
+  private touchLogKey: string
 
-  constructor(dpi: number = 96) {
+  constructor(dpi: number = 96, customKey?: string) {
     this.dpi = dpi
+    this.storageKey = customKey || this.generateDefaultStorageKey()
+    this.touchLogKey = `${this.storageKey}-touch-log`
     this.loadTotalDistance()
   }
 
-  // Observer 패턴 메서드
+  private generateDefaultStorageKey(): string {
+    let index = 1
+    while (
+      localStorage.getItem(`totalDistance-${String(index).padStart(2, '0')}`)
+    ) {
+      index++
+    }
+    return `totalDistance-${String(index).padStart(2, '0')}`
+  }
+
   public addObserver(observer: TouchDistanceObserver): void {
     this.observers.push(observer)
   }
@@ -53,20 +66,22 @@ export default class TouchDistanceTracker {
     })
   }
 
-  // 로컬스토리지에 총 이동 거리 저장
   private saveTotalDistance(): void {
-    localStorage.setItem('totalDistance', this.totalDistance.toString())
+    localStorage.setItem(this.storageKey, this.totalDistance.toString())
   }
 
-  // 로컬스토리지에서 총 이동 거리 불러오기
   private loadTotalDistance(): void {
-    const savedDistance = localStorage.getItem('totalDistance')
+    const savedDistance = localStorage.getItem(this.storageKey)
     if (savedDistance) {
       this.totalDistance = parseFloat(savedDistance)
     }
   }
 
-  // 두 점 간의 거리 계산
+  public removeStorage(): void {
+    localStorage.removeItem(this.storageKey)
+    localStorage.removeItem(this.touchLogKey)
+  }
+
   private calculateDistance(
     x1: number,
     y1: number,
@@ -76,19 +91,31 @@ export default class TouchDistanceTracker {
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
   }
 
-  // 픽셀 단위 거리를 mm로 변환
   private convertToMM(distanceInPixels: number): number {
     const mmPerPixel = 25.4 / this.dpi
     return distanceInPixels * mmPerPixel
   }
 
-  // 터치 이벤트 처리
+  private saveTouchLog(touchData: {
+    x: number
+    y: number
+    time_millis: number
+  }): void {
+    const existingLog = localStorage.getItem(this.touchLogKey)
+    const log = existingLog ? JSON.parse(existingLog) : []
+    log.push(touchData)
+    localStorage.setItem(this.touchLogKey, JSON.stringify(log))
+  }
+
   public handleTouch(event: PointerEvent): void {
     const x = event.clientX
     const y = event.clientY
+    const time_millis = Date.now()
     const newPoint = { x, y }
 
-    // 터치 위치 기록
+    // 로컬스토리지에 터치 로그 저장
+    this.saveTouchLog({ x, y, time_millis })
+
     if (this.lastTouchPosition) {
       const distanceInPixels = this.calculateDistance(
         this.lastTouchPosition.x,
@@ -98,10 +125,8 @@ export default class TouchDistanceTracker {
       )
       const distanceInMM = this.convertToMM(distanceInPixels)
 
-      // 총 이동 거리 업데이트
       this.totalDistance += distanceInMM
 
-      // 선 정보 저장
       const newLine = {
         x1: this.lastTouchPosition.x,
         y1: this.lastTouchPosition.y,
@@ -110,30 +135,24 @@ export default class TouchDistanceTracker {
         distance: distanceInMM,
       }
       this.lines.push(newLine)
-
-      // 로컬스토리지에 저장
       this.saveTotalDistance()
     }
 
-    // 새로운 터치 포인트 저장
     this.points.push(newPoint)
     this.lastTouchPosition = newPoint
-
-    // 옵저버에게 상태 변경 알림
     this.notifyObservers()
   }
 
-  // 거리 데이터 초기화
   public reset(): void {
     this.lastTouchPosition = null
     this.totalDistance = 0
     this.points = []
     this.lines = []
     this.saveTotalDistance()
+    localStorage.removeItem(this.touchLogKey)
     this.notifyObservers()
   }
 
-  // 데이터 반환 함수들
   public getTotalDistance(): number {
     return this.totalDistance
   }
@@ -144,5 +163,10 @@ export default class TouchDistanceTracker {
 
   public getLines(): Line[] {
     return [...this.lines]
+  }
+
+  public getTouchLog(): { x: number; y: number; time_millis: number }[] {
+    const log = localStorage.getItem(this.touchLogKey)
+    return log ? JSON.parse(log) : []
   }
 }

@@ -23,6 +23,14 @@ const handleTouch = (event: PointerEvent) => {
   tracker.handleTouch(event)
 }
 
+// 로컬스토리지 데이터 삭제
+const removeLocalStorage = () => {
+  tracker.removeStorage()
+  tracker.reset()
+  points.value = []
+  lines.value = []
+}
+
 // 컴포넌트 생명주기에 맞춰 옵저버 관리
 onMounted(() => {
   tracker.addObserver(observer)
@@ -80,6 +88,10 @@ onUnmounted(() => {
         {{ index + 1 }}
       </text>
     </svg>
+
+    <button class="clear-button" @click="removeLocalStorage" @pointerdown.stop>
+      Clear Local Storage
+    </button>
   </div>
 </template>
 
@@ -116,5 +128,21 @@ line {
 
 text {
   font-family: Arial, sans-serif;
+}
+
+.clear-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 10px 20px;
+  background-color: #ff5555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.clear-button:hover {
+  background-color: #ff3333;
 }
 </style>
