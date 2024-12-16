@@ -1,29 +1,68 @@
-import { ref } from 'vue'
+interface TouchDistanceObserver {
+  onPointsUpdated?(points: Point[]): void
+  onLinesUpdated?(lines: Line[]): void
+  onTotalDistanceUpdated?(totalDistance: number): void
+}
+
+export interface Point {
+  x: number
+  y: number
+}
+
+export interface Line {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  distance: number
+}
 
 export default class TouchDistanceTracker {
-  private lastTouchPosition: { x: number; y: number } | null = null
+  private lastTouchPosition: Point | null = null
   private dpi: number
-  private totalDistance = ref(0)
-  private points = ref<{ x: number; y: number }[]>([])
-  private lines = ref<
-    { x1: number; y1: number; x2: number; y2: number; distance: number }[]
-  >([])
+  private totalDistance = 0
+  private points: Point[] = []
+  private lines: Line[] = []
+  private observers: TouchDistanceObserver[] = []
 
   constructor(dpi: number = 96) {
     this.dpi = dpi
     this.loadTotalDistance()
   }
 
+  // Observer 패턴 메서드
+  public addObserver(observer: TouchDistanceObserver): void {
+    this.observers.push(observer)
+  }
+
+  public removeObserver(observer: TouchDistanceObserver): void {
+    this.observers = this.observers.filter((obs) => obs !== observer)
+  }
+
+  private notifyObservers(): void {
+    this.observers.forEach((observer) => {
+      if (observer.onPointsUpdated) {
+        observer.onPointsUpdated([...this.points])
+      }
+      if (observer.onLinesUpdated) {
+        observer.onLinesUpdated([...this.lines])
+      }
+      if (observer.onTotalDistanceUpdated) {
+        observer.onTotalDistanceUpdated(this.totalDistance)
+      }
+    })
+  }
+
   // 로컬스토리지에 총 이동 거리 저장
   private saveTotalDistance(): void {
-    localStorage.setItem('totalDistance', this.totalDistance.value.toString())
+    localStorage.setItem('totalDistance', this.totalDistance.toString())
   }
 
   // 로컬스토리지에서 총 이동 거리 불러오기
   private loadTotalDistance(): void {
     const savedDistance = localStorage.getItem('totalDistance')
     if (savedDistance) {
-      this.totalDistance.value = parseFloat(savedDistance)
+      this.totalDistance = parseFloat(savedDistance)
     }
   }
 
@@ -60,51 +99,50 @@ export default class TouchDistanceTracker {
       const distanceInMM = this.convertToMM(distanceInPixels)
 
       // 총 이동 거리 업데이트
-      this.totalDistance.value += distanceInMM
+      this.totalDistance += distanceInMM
 
       // 선 정보 저장
-      this.lines.value.push({
+      const newLine = {
         x1: this.lastTouchPosition.x,
         y1: this.lastTouchPosition.y,
         x2: x,
         y2: y,
         distance: distanceInMM,
-      })
+      }
+      this.lines.push(newLine)
 
       // 로컬스토리지에 저장
       this.saveTotalDistance()
     }
 
     // 새로운 터치 포인트 저장
-    this.points.value.push(newPoint)
+    this.points.push(newPoint)
     this.lastTouchPosition = newPoint
+
+    // 옵저버에게 상태 변경 알림
+    this.notifyObservers()
   }
 
   // 거리 데이터 초기화
   public reset(): void {
     this.lastTouchPosition = null
-    this.totalDistance.value = 0
-    this.points.value = []
-    this.lines.value = []
+    this.totalDistance = 0
+    this.points = []
+    this.lines = []
     this.saveTotalDistance()
+    this.notifyObservers()
   }
 
   // 데이터 반환 함수들
   public getTotalDistance(): number {
-    return this.totalDistance.value
+    return this.totalDistance
   }
 
-  public getPoints(): { x: number; y: number }[] {
-    return this.points.value
+  public getPoints(): Point[] {
+    return [...this.points]
   }
 
-  public getLines(): {
-    x1: number
-    y1: number
-    x2: number
-    y2: number
-    distance: number
-  }[] {
-    return this.lines.value
+  public getLines(): Line[] {
+    return [...this.lines]
   }
 }

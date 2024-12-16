@@ -1,20 +1,36 @@
 <script lang="ts" setup>
 import TouchDistanceTracker from '@/module/touchDistanceTracker'
-import { ref } from 'vue'
+import type { Point, Line } from '@/module/touchDistanceTracker'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const tracker = new TouchDistanceTracker(227)
 
-const handleTouch = (event: PointerEvent) => {
-  tracker.handleTouch(event)
-  points.value = tracker.getPoints()
-  lines.value = tracker.getLines()
+const points = ref<Point[]>([])
+const lines = ref<Line[]>([])
+
+// 옵저버 객체 생성
+const observer = {
+  onPointsUpdated(updatedPoints: Point[]) {
+    points.value = updatedPoints
+  },
+  onLinesUpdated(updatedLines: Line[]) {
+    lines.value = updatedLines
+  },
 }
 
-const points = ref<{ x: number; y: number }[]>([])
+// 터치 핸들러
+const handleTouch = (event: PointerEvent) => {
+  tracker.handleTouch(event)
+}
 
-const lines = ref<
-  { x1: number; y1: number; x2: number; y2: number; distance: number }[]
->([])
+// 컴포넌트 생명주기에 맞춰 옵저버 관리
+onMounted(() => {
+  tracker.addObserver(observer)
+})
+
+onUnmounted(() => {
+  tracker.removeObserver(observer)
+})
 </script>
 
 <template>
