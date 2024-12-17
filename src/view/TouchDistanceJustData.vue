@@ -12,8 +12,6 @@ const handleTouch = (event: PointerEvent) => {
 const removeLocalStorage = () => {
   tracker.removeStorage()
   tracker.reset()
-  points.value = []
-  lines.value = []
 }
 </script>
 
