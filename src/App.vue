@@ -75,7 +75,7 @@ const resetDragState = () => {
       Quick Control
     </div>
     <RouterView />
-    <!-- <GNB /> -->
+    <GNB />
     <!-- <ScreenModal :modal-name="'결제 완료'" :button-label="'충전 시작'">
       <template v-slot:body>
         <div class="flex w-full justify-start">

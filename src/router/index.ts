@@ -15,14 +15,9 @@ const router = createRouter({
       component: () => import('../view/AboutView.vue'),
     },
     {
-      path: '/touch-visual',
-      name: 'touch-visual',
-      component: () => import('../view/TouchDistanceVisual.vue'),
-    },
-    {
-      path: '/touch-date',
-      name: 'touch-date',
-      component: () => import('../view/TouchDistanceJustData.vue'),
+      path: '/touch-distance',
+      name: 'touch-distance',
+      component: () => import('../view/TouchDistance.vue'),
     },
   ],
 })
