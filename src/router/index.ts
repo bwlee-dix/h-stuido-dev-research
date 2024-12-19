@@ -14,6 +14,11 @@ const router = createRouter({
       name: 'touch-count',
       component: () => import('@/view/TouchCountView.vue'),
     },
+    {
+      path: '/touch-accuracy',
+      name: 'touch-accuracy',
+      component: () => import('@/view/TouchAccuracyView.vue'),
+    },
   ],
 })
 
