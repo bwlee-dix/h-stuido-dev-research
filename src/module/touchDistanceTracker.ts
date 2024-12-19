@@ -74,45 +74,46 @@ export default class TouchDistanceTracker {
   }
 
   private notifyObservers(): void {
-    if (this.mode === 'visualization') {
-      this.observers.forEach((observer) => {
-        if (observer.onPointsUpdated) {
-          observer.onPointsUpdated([...this.points])
-        }
-        if (observer.onLinesUpdated) {
-          observer.onLinesUpdated([...this.lines])
-        }
-        if (observer.onTotalDistanceUpdated) {
-          observer.onTotalDistanceUpdated(this.totalDistance)
-        }
-      })
-    }
+    if (this.mode !== 'visualization') return
+
+    this.observers.forEach((observer) => {
+      if (observer.onPointsUpdated) {
+        observer.onPointsUpdated([...this.points])
+      }
+      if (observer.onLinesUpdated) {
+        observer.onLinesUpdated([...this.lines])
+      }
+      if (observer.onTotalDistanceUpdated) {
+        observer.onTotalDistanceUpdated(this.totalDistance)
+      }
+    })
   }
 
   private saveTotalDistance(): void {
-    if (this.storageConfig.storageKey) {
-      localStorage.setItem(
-        this.storageConfig.storageKey,
-        this.totalDistance.toString(),
-      )
-    }
+    if (!this.storageConfig.storageKey) return
+
+    localStorage.setItem(
+      this.storageConfig.storageKey,
+      this.totalDistance.toString(),
+    )
   }
 
   private loadTotalDistance(): void {
-    if (this.storageConfig.storageKey) {
-      const savedDistance = localStorage.getItem(this.storageConfig.storageKey)
-      if (savedDistance) {
-        this.totalDistance = parseFloat(savedDistance)
-      }
-    }
+    if (!this.storageConfig.storageKey) return
+
+    const savedDistance = localStorage.getItem(this.storageConfig.storageKey)
+    if (!savedDistance) return
+
+    this.totalDistance = parseFloat(savedDistance)
   }
+
   public removeStorage(): void {
-    if (this.storageConfig.storageKey) {
-      localStorage.removeItem(this.storageConfig.storageKey)
-    }
-    if (this.storageConfig.touchLogKey) {
-      localStorage.removeItem(this.storageConfig.touchLogKey)
-    }
+    if (!this.storageConfig.storageKey) return
+    localStorage.removeItem(this.storageConfig.storageKey)
+
+    if (!this.storageConfig.touchLogKey) return
+
+    localStorage.removeItem(this.storageConfig.touchLogKey)
   }
 
   private calculateDistance(
@@ -134,12 +135,12 @@ export default class TouchDistanceTracker {
     y: number
     time_millis: number
   }): void {
-    if (this.storageConfig.touchLogKey) {
-      const existingLog = localStorage.getItem(this.storageConfig.touchLogKey)
-      const log = existingLog ? JSON.parse(existingLog) : []
-      log.push(touchData)
-      localStorage.setItem(this.storageConfig.touchLogKey, JSON.stringify(log))
-    }
+    if (!this.storageConfig.touchLogKey) return
+
+    const existingLog = localStorage.getItem(this.storageConfig.touchLogKey)
+    const log = existingLog ? JSON.parse(existingLog) : []
+    log.push(touchData)
+    localStorage.setItem(this.storageConfig.touchLogKey, JSON.stringify(log))
   }
 
   public handleTouch(event: PointerEvent): void {
@@ -185,9 +186,9 @@ export default class TouchDistanceTracker {
     this.lines = []
     this.saveTotalDistance()
 
-    if (this.storageConfig.touchLogKey) {
-      localStorage.removeItem(this.storageConfig.touchLogKey)
-    }
+    if (!this.storageConfig.touchLogKey) return
+
+    localStorage.removeItem(this.storageConfig.touchLogKey)
 
     this.notifyObservers()
   }
@@ -205,10 +206,9 @@ export default class TouchDistanceTracker {
   }
 
   public getTouchLog(): { x: number; y: number; time_millis: number }[] {
-    if (this.storageConfig.touchLogKey) {
-      const log = localStorage.getItem(this.storageConfig.touchLogKey)
-      return log ? JSON.parse(log) : []
-    }
-    return []
+    if (!this.storageConfig.touchLogKey) return []
+
+    const log = localStorage.getItem(this.storageConfig.touchLogKey)
+    return log ? JSON.parse(log) : []
   }
 }
