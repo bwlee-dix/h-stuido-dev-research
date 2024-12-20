@@ -9,6 +9,11 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+    {
+      path: '/touch-count',
+      name: 'touch-count',
+      component: () => import('@/view/TouchCountView.vue'),
+    },
   ],
 })
 
