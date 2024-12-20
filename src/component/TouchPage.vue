@@ -5,7 +5,7 @@
       이전 페이지
     </button>
     <button :disabled="isLastPage" @click="goToNextPage">다음 페이지</button>
-    <!-- <button @click="finishScenario">시나리오 종료</button> -->
+    <button v-if="isLastPage" @click="finishScenario">시나리오 종료</button>
     <pre>{{ touchData }}</pre>
   </div>
 </template>
