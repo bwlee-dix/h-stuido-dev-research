@@ -14,6 +14,11 @@ const router = createRouter({
       name: 'touch-count',
       component: () => import('@/view/TouchCountView.vue'),
     },
+    {
+      path: '/touch-heatmap',
+      name: 'touch-heatmap',
+      component: () => import('@/view/TouchHeatmapView.vue'),
+    },
   ],
 })
 
