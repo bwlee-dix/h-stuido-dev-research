@@ -5,7 +5,7 @@
       이전 페이지
     </button>
     <button :disabled="isLastPage" @click="goToNextPage">다음 페이지</button>
-    <!-- <button @click="finishScenario">시나리오 종료</button> -->
+    <!-- <button v-if="isLastPage" @click="finishScenario">시나리오 종료</button> -->
     <pre>{{ touchData }}</pre>
   </div>
 </template>
@@ -14,7 +14,7 @@
 import { type PropType } from 'vue'
 import type { TouchEventData } from '@/module/touchCountTracker'
 
-const props = defineProps({
+defineProps({
   pageTitle: {
     type: String,
     required: true,
@@ -33,9 +33,9 @@ const props = defineProps({
   goToNextPage: {
     type: Function as PropType<() => void>,
   },
-  finishScenario: {
-    type: Function as PropType<() => void>,
-  },
+  // finishScenario: {
+  //   type: Function as PropType<() => void>,
+  // },
   touchData: {
     type: Object as PropType<TouchEventData>,
     required: true,

@@ -49,9 +49,6 @@ const tracker = new TouchCountTracker({
     touchData.value = { ...data }
     localStorage.setItem('touchData', JSON.stringify(data))
   },
-  onTouchCancel: (data) => {
-    console.log('터치 취소:', data)
-  },
 })
 
 onMounted(() => {
@@ -80,8 +77,6 @@ const goToPreviousPage = () => {
     currentPage.value--
   }
 }
-
-const finishScenario = () => {}
 </script>
 
 <style scoped>
