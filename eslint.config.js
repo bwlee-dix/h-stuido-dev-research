@@ -14,9 +14,17 @@ export default [
     ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**'],
   },
 
+  {
+    name: 'custom-rules',
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
+    },
+  },
   ...pluginVue.configs['flat/essential'],
   ...vueTsEslintConfig(),
-  
   {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
