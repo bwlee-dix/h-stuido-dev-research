@@ -21,7 +21,7 @@ const openScreenModal = () => {
 
 <template>
   <div
-    class="absolute bottom-0 flex h-20 w-full flex-col justify-center bg-black text-white"
+    class="fixed bottom-0 flex h-20 w-full flex-col justify-center bg-black text-white"
   >
     <div
       class="mx-auto flex w-full max-w-[1000px] flex-row justify-center gap-8"
