@@ -9,6 +9,11 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+    {
+      path: '/complete-rate',
+      name: 'complete-rate',
+      component: () => import('@/view/CompleteRateView.vue'),
+    },
   ],
 })
 
