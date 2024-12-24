@@ -9,6 +9,11 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+    {
+      path: '/touch-accuracy',
+      name: 'touch-accuracy',
+      component: () => import('@/view/TouchAccuracyView.vue'),
+    },
   ],
 })
 
