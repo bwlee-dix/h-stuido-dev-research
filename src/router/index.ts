@@ -9,6 +9,11 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+    {
+      path: '/complete-timer',
+      name: 'complete-timer',
+      component: () => import('@/view/CompleteTImer.vue'),
+    },
   ],
 })
 
