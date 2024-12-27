@@ -29,6 +29,11 @@ const router = createRouter({
       name: 'complete-rate',
       component: () => import('@/view/CompleteRateView.vue'),
     },
+    {
+      path: '/path-setting',
+      name: 'path-setting',
+      component: () => import('@/view/PathSettingView.vue'),
+    },
   ],
 })
 
