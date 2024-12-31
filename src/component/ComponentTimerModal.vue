@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import type { CompleteTimer, TimerRecord } from '@/module/completeTimer'
 
 const props = defineProps<{
@@ -7,11 +7,8 @@ const props = defineProps<{
 }>()
 
 const currentTime = ref<number>(0)
+const interval = ref<number | undefined>(undefined)
 const records = ref<TimerRecord[]>([])
-
-const updateTime = (time: number) => {
-  currentTime.value = time
-}
 
 const updateRecords = () => {
   records.value = props.timer.getRecords()
@@ -19,25 +16,31 @@ const updateRecords = () => {
 
 const handleStart = () => {
   props.timer.start()
+  interval.value = setInterval(() => {
+    if (props.timer.getStartTime() === null) return
+    currentTime.value = Date.now() - props.timer.getStartTime()!
+  }, 10)
 }
 
 const handleStop = () => {
   props.timer.stop()
   updateRecords()
+  clearInterval(interval.value)
 }
 
 const handleReset = () => {
   props.timer.reset()
-  records.value = []
+  updateRecords()
+  clearInterval(interval.value)
 }
 
 onMounted(() => {
-  props.timer.subscribe(updateTime)
   updateRecords()
 })
 
-onUnmounted(() => {
-  props.timer.unsubscribe(updateTime)
+onBeforeUnmount(() => {
+  if (!interval.value) return
+  clearInterval(interval.value)
 })
 </script>
 
@@ -49,15 +52,14 @@ onUnmounted(() => {
     </div>
     <div class="timer-controls">
       <button @click="handleStart" class="btn-control">Start</button>
-      <button @click="props.timer.pause()" class="btn-control">Pause</button>
       <button @click="handleStop" class="btn-control">Stop</button>
       <button @click="handleReset" class="btn-control">Reset</button>
     </div>
     <div v-if="records.length > 0" class="records-list">
-      <h3>Completion Times:</h3>
+      <h3>Completion Times</h3>
       <ul>
-        <li v-for="record in records" :key="record.stopTime">
-          <span class="label">{{ record.name }}:</span>
+        <li v-for="(record, index) in records" :key="record.stopTime">
+          <span class="label">{{ index + 1 }}. Elapsed Time:</span>
           <span class="value">{{
             props.timer.formatTime(record.stopTime! - record.startTime!)
           }}</span>
@@ -139,7 +141,7 @@ onUnmounted(() => {
         gap: 4px;
 
         .label {
-          font-weight: 600;
+          font-weight: 500;
         }
       }
     }
