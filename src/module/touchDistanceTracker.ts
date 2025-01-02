@@ -1,5 +1,3 @@
-export type TouchMode = 'visualization' | 'production'
-
 export interface StorageConfig {
   storageKey?: string
   touchLogKey?: string
@@ -18,30 +16,20 @@ export interface Line {
   distance: number
 }
 
-export interface Observer {
-  onPointsUpdated?(points: Point[]): void
-  onLinesUpdated?(lines: Line[]): void
-  onTotalDistanceUpdated?(totalDistance: number): void
-}
-
 export default class TouchDistanceTracker {
-  private mode: TouchMode
   private lastTouchPosition: Point | null = null
   private dpi: number
   private totalDistance = 0
   private points: Point[] = []
   private lines: Line[] = []
-  private observers: Observer[] = []
   private storageConfig: StorageConfig
 
   constructor(
     config: {
-      mode?: TouchMode
       dpi?: number
       storageConfig?: StorageConfig
     } = {},
   ) {
-    this.mode = config.mode || 'production'
     this.dpi = config.dpi || 96
 
     const defaultStorageKey = this.generateDefaultStorageKey()
@@ -65,30 +53,6 @@ export default class TouchDistanceTracker {
     return `totalDistance-${String(index).padStart(2, '0')}`
   }
 
-  public addObserver(observer: Observer): void {
-    this.observers.push(observer)
-  }
-
-  public removeObserver(observer: Observer): void {
-    this.observers = this.observers.filter((obs) => obs !== observer)
-  }
-
-  private notifyObservers(): void {
-    if (this.mode !== 'visualization') return
-
-    this.observers.forEach((observer) => {
-      if (observer.onPointsUpdated) {
-        observer.onPointsUpdated([...this.points])
-      }
-      if (observer.onLinesUpdated) {
-        observer.onLinesUpdated([...this.lines])
-      }
-      if (observer.onTotalDistanceUpdated) {
-        observer.onTotalDistanceUpdated(this.totalDistance)
-      }
-    })
-  }
-
   private saveTotalDistance(): void {
     if (!this.storageConfig.storageKey) return
 
@@ -105,15 +69,6 @@ export default class TouchDistanceTracker {
     if (!savedDistance) return
 
     this.totalDistance = parseFloat(savedDistance)
-  }
-
-  public removeStorage(): void {
-    if (!this.storageConfig.storageKey) return
-    localStorage.removeItem(this.storageConfig.storageKey)
-
-    if (!this.storageConfig.touchLogKey) return
-
-    localStorage.removeItem(this.storageConfig.touchLogKey)
   }
 
   private calculateDistance(
@@ -176,7 +131,6 @@ export default class TouchDistanceTracker {
 
     this.points.push(newPoint)
     this.lastTouchPosition = newPoint
-    this.notifyObservers()
   }
 
   public reset(): void {
@@ -184,13 +138,12 @@ export default class TouchDistanceTracker {
     this.totalDistance = 0
     this.points = []
     this.lines = []
-    this.saveTotalDistance()
+
+    if (!this.storageConfig.storageKey) return
+    localStorage.removeItem(this.storageConfig.storageKey)
 
     if (!this.storageConfig.touchLogKey) return
-
     localStorage.removeItem(this.storageConfig.touchLogKey)
-
-    this.notifyObservers()
   }
 
   public getTotalDistance(): number {

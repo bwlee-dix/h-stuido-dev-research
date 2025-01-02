@@ -3,39 +3,27 @@ import TouchDistanceTracker, {
   type Line,
   type Point,
 } from '@/module/touchDistanceTracker'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 
-const tracker = new TouchDistanceTracker({ mode: 'visualization' })
+const tracker = new TouchDistanceTracker()
 const points = ref<Point[]>([])
 const lines = ref<Line[]>([])
-
-const observer = {
-  onPointsUpdated(updatedPoints: Point[]) {
-    points.value = updatedPoints
-  },
-  onLinesUpdated(updatedLines: Line[]) {
-    lines.value = updatedLines
-  },
-}
+const totalDistance = ref<number>(0)
 
 const handleTouch = (event: PointerEvent) => {
   tracker.handleTouch(event)
+
+  points.value = tracker.getPoints()
+  lines.value = tracker.getLines()
+  totalDistance.value = tracker.getTotalDistance()
 }
 
 const removeLocalStorage = () => {
-  tracker.removeStorage()
   tracker.reset()
   points.value = []
   lines.value = []
+  totalDistance.value = 0
 }
-
-onMounted(() => {
-  tracker.addObserver(observer)
-})
-
-onUnmounted(() => {
-  tracker.removeObserver(observer)
-})
 </script>
 
 <template>
@@ -86,9 +74,19 @@ onUnmounted(() => {
       </text>
     </svg>
 
-    <button class="clear-button" @click="removeLocalStorage" @pointerdown.stop>
-      Clear Local Storage
-    </button>
+    <div class="controller-wrapper">
+      <button
+        class="clear-button"
+        @click="removeLocalStorage"
+        @pointerdown.stop
+      >
+        Clear Local Storage
+      </button>
+      <div class="total">
+        <span class="label">총 거리:</span>
+        <span class="value"> {{ totalDistance.toFixed(2) }} mm </span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -127,19 +125,40 @@ text {
   font-family: Arial, sans-serif;
 }
 
-.clear-button {
+.controller-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   position: absolute;
   top: 10px;
   right: 10px;
-  padding: 10px 20px;
-  background-color: #ff5555;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+  padding: 24px;
+  background-color: white;
+  box-shadow: 8px 8px 24px rgba(0, 0, 0, 0.04);
+  border: 1px solid #d0d1d2;
+  border-radius: 8px;
 
-.clear-button:hover {
-  background-color: #ff3333;
+  .total {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+
+    .value {
+      font-weight: 600;
+    }
+  }
+
+  .clear-button {
+    padding: 10px 20px;
+    background-color: #ff5555;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #ff3333;
+    }
+  }
 }
 </style>
