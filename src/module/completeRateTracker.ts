@@ -44,6 +44,7 @@ export class CompleteRateTracker {
   private currentTaskId: string | null = null
   private taskStartTime: number = 0
   private guideShownTime: number | null = null
+  private stats: CompletionStats | null = null
   private static localStoragePrefix = 'completion-stats'
 
   /**
@@ -67,6 +68,7 @@ export class CompleteRateTracker {
 
   /**
    * Records the completion of a task.
+   * Override completeTask to update stats when task is completed
    * @param successful Whether the task was successfully completed
    */
   public completeTask(successful: boolean): void {
@@ -92,12 +94,14 @@ export class CompleteRateTracker {
     this.currentTaskId = null
     this.taskStartTime = 0
     this.guideShownTime = null
+
+    this.updateStats()
   }
 
   /**
-   * Calculates statistics based on completed tasks.
+   * Updates internal stats based on completed tasks.
    */
-  public getStats(): CompletionStats {
+  private updateStats(): void {
     let successWithoutGuide = 0
     let successWithGuide = 0
     let failureWithGuide = 0
@@ -120,16 +124,26 @@ export class CompleteRateTracker {
     const selfCompletionRate =
       totalAttempts > 0 ? (successWithoutGuide / totalAttempts) * 100 : 0
 
-    // Save raw data to localStorage
-    this.saveToLocalStorage()
-
-    return {
+    this.stats = {
       successWithoutGuide,
       successWithGuide,
       failureWithGuide,
       totalAttempts,
       selfCompletionRate,
     }
+
+    this.saveToLocalStorage()
+  }
+
+  /**
+   * Gets the current completion statistics.
+   * If stats are not calculated yet, calculates them first.
+   */
+  public getStats(): CompletionStats {
+    if (!this.stats) {
+      this.updateStats()
+    }
+    return { ...this.stats! }
   }
 
   /**
@@ -162,8 +176,8 @@ export class CompleteRateTracker {
     this.currentTaskId = null
     this.taskStartTime = 0
     this.guideShownTime = null
+    this.stats = null
 
-    // Remove all localStorage data related to stats
     const localStorageKeys = Object.keys(localStorage)
     localStorageKeys.forEach((key) => {
       if (key.startsWith(CompleteRateTracker.localStoragePrefix)) {
