@@ -24,6 +24,11 @@ const router = createRouter({
       name: 'complete-timer',
       component: () => import('@/view/CompleteTimer.vue'),
     },
+    {
+      path: '/complete-rate',
+      name: 'complete-rate',
+      component: () => import('@/view/CompleteRateView.vue'),
+    },
   ],
 })
 
