@@ -19,6 +19,11 @@ const router = createRouter({
       name: 'touch-accuracy',
       component: () => import('@/view/TouchAccuracyView.vue'),
     },
+    {
+      path: '/complete-timer',
+      name: 'complete-timer',
+      component: () => import('@/view/CompleteTimer.vue'),
+    },
   ],
 })
 
