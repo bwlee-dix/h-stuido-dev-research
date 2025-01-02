@@ -14,16 +14,10 @@ export enum TaskCompletionStatus {
  * Interface representing the completion data of an individual task.
  */
 export interface TaskCompletionData {
-  /** Task ID */
-  taskId: string
   /** Completion status */
   status: TaskCompletionStatus
   /** Time spent (in milliseconds) */
   timeSpent: number
-  /** Whether a guide was shown */
-  guideShown: boolean
-  /** Timestamp of completion */
-  timestamp: number
 }
 
 /**
@@ -91,11 +85,8 @@ export class CompleteRateTracker {
     }
 
     this.taskData.set(this.currentTaskId, {
-      taskId: this.currentTaskId,
       status,
       timeSpent,
-      guideShown: !!this.guideShownTime,
-      timestamp: now,
     })
 
     this.currentTaskId = null
