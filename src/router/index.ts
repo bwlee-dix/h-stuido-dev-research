@@ -34,6 +34,11 @@ const router = createRouter({
       name: 'path-setting',
       component: () => import('@/view/PathSettingView.vue'),
     },
+    {
+      path: '/path-setting-stat',
+      name: 'path-setting-stat',
+      component: () => import('@/view/PathSettingStatView.vue'),
+    },
   ],
 })
 
