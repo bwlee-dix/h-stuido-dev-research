@@ -1,10 +1,32 @@
 <template>
-  <div class="touch-data-container">
-    <div v-for="(value, key) in displayData" :key="key" class="data-item">
-      <div class="data-label">{{ formatLabel(key) }}:</div>
-      <div class="data-value">{{ value }}</div>
-    </div>
+  <template v-if="isFull">
+    <div class="touch-data-container">
+      <div v-for="(value, key) in displayData" :key="key" class="data-item">
+        <div class="data-label">{{ formatLabel(key) }}:</div>
+        <div class="data-value">{{ value }}</div>
+      </div>
 
+      <div class="accordion">
+        <div class="accordion-header" @click="toggleCoordinates">
+          <div class="flex items-center justify-between w-full">
+            <span>touchCoordinates(터치 좌표 데이터) ({{ touchData.touchCoordinates.length }}개)</span>
+            <span class="toggle-icon">{{ isOpen ? '▲' : '▼' }}</span>
+          </div>
+        </div>
+        <div v-if="isOpen" class="accordion-content">
+          <div v-for="(coord, index) in touchData.touchCoordinates" :key="index" class="coordinate-item">
+            <div class="coordinate-header">좌표 #{{ index + 1 }}</div>
+            <div class="coordinate-details">
+              <div>X: {{ coord.x }}</div>
+              <div>Y: {{ coord.y }}</div>
+              <div>시간: {{ new Date(coord.time_millis).toLocaleString() }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+  <template v-else>
     <div class="accordion">
       <div class="accordion-header" @click="toggleCoordinates">
         <div class="flex items-center justify-between w-full">
@@ -23,16 +45,19 @@
         </div>
       </div>
     </div>
-  </div>
+  </template>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { TouchEventData } from '@/module/touchCountTracker'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   touchData: TouchEventData
-}>()
+  isFull?: boolean
+}>(), {
+  isFull: true,
+})
 
 const isOpen = ref(false)
 
