@@ -39,6 +39,11 @@ const router = createRouter({
       name: 'path-setting-stat',
       component: () => import('@/view/PathSettingStatView.vue'),
     },
+    {
+      path: '/touch-distance',
+      name: 'touch-distance',
+      component: () => import('../view/TouchDistanceView.vue'),
+    },
   ],
 })
 
